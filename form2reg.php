@@ -110,6 +110,10 @@ function form2reg_run(){
         //form2reg_form_width
         add_settings_field( 'form2reg_form_width', 'Form Background', 'form2reg_form_width_func', 'form2reg_colors', 'form2reg_colors_section');
         register_setting( 'form2reg_colors_section', 'form2reg_form_width');
+
+        //form2reg_user_role
+        add_settings_field( 'form2reg_user_role', 'Form Background', 'form2reg_user_role_func', 'form2reg_colors', 'form2reg_colors_section');
+        register_setting( 'form2reg_colors_section', 'form2reg_user_role');
     });
 
     // form2reg_form_bg_func
@@ -140,6 +144,13 @@ function form2reg_run(){
     // form2reg_form_width_func
     function form2reg_form_width_func(){
         echo '<input type="text" value="'.(get_option("form2reg_form_width")?get_option("form2reg_form_width"):'550px').'" name="form2reg_form_width">';
+    }
+
+    // form2reg_user_role_func
+    function form2reg_user_role_func(){
+        echo '<select name="form2reg_user_role">';
+        echo wp_dropdown_roles( get_option("form2reg_user_role") );
+        echo '</select>';
     }
 
     // get_introducer_name
@@ -236,7 +247,7 @@ function form2reg_run(){
             $_addr_1 = sanitize_text_field($_POST['data']['_addr_1']);
             $_addr_2 = sanitize_text_field($_POST['data']['_addr_2']);
 
-            if(!empty($isa_num) && !empty($introducer) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1) && !empty($_addr_2)){
+            if(!empty($introducer) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
                 $userdata = array(
                     'user_login'    =>  $fname,
                     'user_email'     =>  $email,
@@ -441,7 +452,11 @@ function form2reg_run(){
     function form2reg_reset_colors(){
         delete_option( 'form2reg_form_bg' );
         delete_option( 'form2reg_body_bg' );
+        delete_option( 'form2reg_form_title' );
+        delete_option( 'form2reg_form_label' );
+        delete_option( 'form2reg_next_button' );
         delete_option( 'form2reg_form_width' );
+        delete_option( 'form2reg_user_role' );
         echo 'Success';
         wp_die();
     }
