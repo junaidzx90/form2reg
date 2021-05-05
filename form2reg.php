@@ -206,6 +206,21 @@ function form2reg_run(){
     function form2reg_register_user(){
         if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
 
+            if($_POST['isa_num']){
+                $introducer_isa = sanitize_text_field( $_POST['isa_num'] );
+                $args = array(
+                    'meta_key' => 'my_isa_number',
+                    'meta_value' => $introducer_isa,
+                    'compare' => '='
+                );
+                $introducer_user = new WP_User_Query($args);
+
+                if(!$introducer_user){
+                    wp_die();
+                }
+            }
+            
+
             $isa_num = rand(5,9999);
             $introducer = sanitize_text_field($_POST['data']['introducer']);
             $email = sanitize_email($_POST['data']['email']);
