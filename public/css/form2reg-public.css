@@ -1,0 +1,228 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  background: #ffeadb;
+}
+
+body {
+  font-family: "Roboto", Helvetica, Arial, sans-serif;
+  font-weight: 100;
+  font-size: 16px;
+  line-height: 30px;
+  color: #777;
+  background: var(--form2reg-body-bg) !important;
+}
+:disabled {
+  cursor: not-allowed !important;
+  opacity: .4;
+}
+#form2reg_reg__form input:read-only{
+  background-color: #fff5e7 !important;
+  cursor: not-allowed;
+}
+
+.passfield {
+  text-align: left !important;
+  position: relative;
+}
+.finput-group{
+  text-align: left !important;
+}
+span.showpass {
+  position: absolute;
+  right: 10px;
+  top: 40px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#form2reg_reg__form {
+  width: var(--form2reg-form-width) !important;
+  margin: 50px auto;
+  text-align: center;
+  position: relative;
+}
+
+#form2reg_reg__form fieldset {
+  background: var(--form2reg-form-bg) !important;
+  border: 0 none;
+  border-radius: 3px;
+  box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+  padding: 20px 30px;
+  box-sizing: border-box;
+  width: 80%;
+  margin: 0 10%;
+  position: relative;
+}
+
+#isa-nombor{
+  text-transform: uppercase;
+}
+
+#form2reg_reg__form fieldset:not(:first-of-type) {
+  display: none;
+}
+
+#form2reg_reg__form input,
+#form2reg_reg__form select,
+#form2reg_reg__form textarea {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: montserrat;
+  color: #2c3e50;
+  font-size: 13px;
+}
+#form2reg_reg__form input:focus,
+#form2reg_reg__form select:focus,
+#form2reg_reg__form textarea:focus {
+  border-color: #679b9b;
+  outline: none;
+  color: #637373;
+}
+#form2reg_reg__form .action-button {
+  width: 100px;
+  background: var(--form2reg-next-button) !important;
+  font-weight: bold;
+  color: #fff;
+  transition: 150ms;
+  border: 0 none;
+  border-radius: 1px;
+  cursor: pointer;
+  padding: 10px 5px;
+  margin: 10px 5px;
+}
+#form2reg_reg__form .action-button:hover,
+#form2reg_reg__form .action-button:focus {
+  box-shadow: 0 0 0 2px #f08a5d;
+  color: #fff;
+}
+#form2reg_reg__form .fs-title {
+  font-size: 24px;
+  text-transform: uppercase;
+  color: var(--form2reg-form-title) !important;
+  margin-bottom: 10px;
+}
+#form2reg_reg__form .fs-subtitle {
+  font-weight: normal;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+#form2reg_reg__form label{
+  color: var(--form2reg-form-label) !important;
+}
+#form2reg_reg__form #progressbar {
+  margin-bottom: 30px;
+  overflow: hidden;
+  counter-reset: step;
+  margin-left: 0;
+}
+#form2reg_reg__form #progressbar li {
+  list-style-type: none;
+  color: #949494;
+  text-transform: uppercase;
+  font-size: 9px;
+  width: 33.33%;
+  display: inline-block;
+  position: relative;
+}
+#form2reg_reg__form #progressbar li:before {
+  content: counter(step);
+  counter-increment: step;
+  width: 20px;
+  line-height: 20px;
+  display: block;
+  font-size: 10px;
+  color: #fff;
+  background: #949494;
+  border-radius: 3px;
+  margin: 0 auto 5px auto;
+}
+#form2reg_reg__form #progressbar li:after {
+  content: "";
+  width: 100%;
+  height: 2px;
+  background: #679b9b;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  z-index: -1;
+}
+.personaldetails {
+  font-size: 18px !important;
+  text-align: left;
+  margin: 20px 0px;
+  border-bottom: 1px solid #ddd;
+}
+#form2reg_reg__form #progressbar li:first-child:after {
+  content: none;
+}
+#form2reg_reg__form #progressbar li.active {
+  color: #36abff;
+}
+#form2reg_reg__form #progressbar li.active:before, #form2reg_reg__form #progressbar li.active:after {
+  background: #36abff;
+  color: white;
+}
+.introducer_profile {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  width: 100%;
+  margin-bottom: 25px;
+  background: #ececec;
+  padding: 14px;
+  border-radius: 5px;
+  display: none;
+}
+span.loading {
+  color: red;
+}
+.introducerName {
+  display: none;
+}
+.introducer__img {
+  width: 33%;
+  align-self: flex-end;
+}
+.introducer__img {
+  min-width: 33%;
+  overflow: hidden;
+  max-width: 100%;
+}
+table{
+  border: none;
+  margin-bottom: 5px;
+}
+table tr, th, td {
+  border: none;
+  border-bottom: 1px solid #ddd;
+  height: 20px !important;
+  padding: 3px;
+}
+@media screen and (max-width: 680px){
+	body{
+		font-size: 12px;
+	}
+	#form2reg_reg__form {
+		width: 100% !important;
+	}
+	#form2reg_reg__form .fs-title{
+		font-size: 18px;
+	}
+  .introducer_profile {
+    flex-direction: column;
+  }
+  .introducer__img {
+    align-self: flex-start;
+  }
+}
