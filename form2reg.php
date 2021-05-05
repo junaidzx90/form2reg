@@ -355,7 +355,7 @@ function form2reg_run(){
         <tr>
             <th><label for="billing_state"><?php _e("District"); ?></label></th>
             <td>
-                <select class="input-text ncselect" name="billing_state" id="billing_state"> 
+                <select class="input-text ncselect" name="billing_state"> 
                     <?php
                     if(get_the_author_meta( 'billing_state', $user->ID )){
                         echo '<option selected value="'.strtolower( get_the_author_meta( 'billing_state', $user->ID ) ).'">'.esc_attr( ucfirst(get_the_author_meta( 'billing_state', $user->ID) ) ).'</option>';
