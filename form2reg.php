@@ -150,9 +150,7 @@ function form2reg_run(){
             if(isset($_POST['isanumber'])){
                 if(!empty($_POST['isanumber'])){
                     global $wpdb,$wp_error;
-                    // admin 876567
                     $isanumber = sanitize_text_field( $_POST['isanumber'] );
-
                     $args = array(
                         'meta_key' => 'my_isa_number',
                         'meta_value' => $isanumber,
@@ -164,7 +162,6 @@ function form2reg_run(){
                         echo json_encode(array('error' => 'blank'));
                         die;
                     }
-                    
                 }
                 if($introducer_user){
                     $introducer_user_id = $introducer_user->results[0]->ID;
