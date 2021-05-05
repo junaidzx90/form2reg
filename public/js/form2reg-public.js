@@ -81,21 +81,6 @@ jQuery(function ($) {
         $('.introducerName').show().children('input').val($('.nameShow').text());
     });
 
-    // Set introducer name in localstorage
-    // $('#introducer-fullname').on('keyup', function () {
-        // if ($(this).val() !== "") {
-        //     $(this).css('border', '1px solid #ddd');
-        //     if ($('#isa-nombor').val() !== "") {
-        //         $('.next').removeAttr('disabled');
-        //     }
-        // } else {
-        //     $('.next').prop('disabled', true);
-        //     $(this).css('border', '1px solid red');
-        //     return false;
-        // }
-    // });
-    
-
     // {FORM TWO / (STEP 2 FORM)}
     // =========================
 
@@ -298,17 +283,6 @@ jQuery(function ($) {
             step2allval();
         }
     });
-
-    // billing_addr_2
-    // $('#billing_addr_2').on('keyup', function () {
-    //     if ($(this).val() !== "") {
-    //         $(this).css('border', '1px solid #ddd');
-    //         step3allval()
-    //     } else {
-    //         $(this).css('border', '1px solid red');
-    //         step3allval()
-    //     }
-    // });
     
     // Step 3 check ability
     function step3allval() {
@@ -488,5 +462,4 @@ jQuery(function ($) {
             return false;
         }
     });
-
 });
