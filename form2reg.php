@@ -151,16 +151,23 @@ function form2reg_run(){
                 if(!empty($_POST['isanumber'])){
                     global $wpdb,$wp_error;
                     // admin 876567
-                    $isanumber = wp_specialchars( $_POST['isanumber'] );
-                    $introducer_user = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}usermeta WHERE `meta_key` = 'my_isa_number' AND `meta_value` = `$isanumber`");
+                    $isanumber = sanitize_text_field( $_POST['isanumber'] );
 
-                    if(is_wp_error( $wpdb )){
+                    $args = array(
+                        'meta_key' => 'my_isa_number',
+                        'meta_value' => $isanumber,
+                        'compare' => '='
+                    );
+                    $introducer_user = new WP_User_Query($args);
+
+                    if(empty($introducer_user)){
                         echo json_encode(array('error' => 'blank'));
                         die;
                     }
+                    
                 }
                 if($introducer_user){
-                    $introducer_user_id = $introducer_user->user_id;
+                    $introducer_user_id = $introducer_user->results[0]->ID;
                     $user_name = get_user_by( 'id', $introducer_user_id )->display_name;
                     $avatar = get_avatar_url($introducer_user_id);
                     $get_isanumber = get_user_meta($introducer_user_id, 'my_isa_number', true);

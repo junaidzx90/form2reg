@@ -2,15 +2,33 @@ jQuery(function ($) {
 
     var pass_access = true;
     var eml_access = true;
+    var introducer_validity = true;
 
     // {FORM ONE / (STEP 1 FORM)}
     // =========================
     
     // {GETTING INTRODUCER NAME THROUGH ISA NUMBER}
     // ===========================================
+
+    function myintroducer() {
+        if ($('.introducerName').children('input').val() !== "") {
+            $('#isa-nombor').css('border', '1px solid #ddd');
+            if ($('#isa-nombor').val() !== "") {
+                $('.next').removeAttr('disabled');
+                introducer_validity = true;
+                step2allval();
+            }
+        } else {
+            $('.next').prop('disabled', true);
+            $('#isa-nombor').css('border', '1px solid red');
+            introducer_validity = false;
+            step2allval();
+        }
+    }
+
     $('#isa-nombor').on('keyup', function () {
+        myintroducer();
         if ($(this).val() !== "") {
-            
             $(this).css('border', '1px solid #ddd');
             $.ajax({
                 type: "post",
@@ -29,6 +47,8 @@ jQuery(function ($) {
                 dataType: 'json',
                 success: function (response) {
                     if (response.name && response.isanumber) {
+                        $('#isa-nombor').css('border', '1px solid #ddd');
+                        $('.introducer_profile').slideUp().css('display','none');
                         $('.loading').remove();
                         $('.next').removeAttr('disabled');
                         $('.isaShow').text(response.isanumber);
@@ -36,6 +56,8 @@ jQuery(function ($) {
                         $('.introducer__img').children('img').attr('src', response.avatar);
                         $('.introducer_profile').css('display','flex').slideDown();
                     } else {
+                        $('.introducerName').hide().children('input').val('');
+                        $('#isa-nombor').css('border', '1px solid red');
                         $('.introducer_profile').slideUp().css('display','none');
                         $('.loading').text("No Introducer Found");
                         setTimeout(() => {
@@ -47,23 +69,30 @@ jQuery(function ($) {
                 }
             });
         } else {
+            $('.introducer_profile').slideUp().css('display','none');
             $(this).css('border', '1px solid red');
             $('.loading').remove();
         }
     });
+    
+    $('#select-introducer').on('click', function (e) {
+        e.preventDefault();
+        $('.introducer_profile').slideUp().css('display','none');
+        $('.introducerName').show().children('input').val($('.nameShow').text());
+    });
 
     // Set introducer name in localstorage
     // $('#introducer-fullname').on('keyup', function () {
-    //     if ($(this).val() !== "") {
-    //         $(this).css('border', '1px solid #ddd');
-    //         if ($('#isa-nombor').val() !== "") {
-    //             $('.next').removeAttr('disabled');
-    //         }
-    //     } else {
-    //         $('.next').prop('disabled', true);
-    //         $(this).css('border', '1px solid red');
-    //         return false;
-    //     }
+        // if ($(this).val() !== "") {
+        //     $(this).css('border', '1px solid #ddd');
+        //     if ($('#isa-nombor').val() !== "") {
+        //         $('.next').removeAttr('disabled');
+        //     }
+        // } else {
+        //     $('.next').prop('disabled', true);
+        //     $(this).css('border', '1px solid red');
+        //     return false;
+        // }
     // });
     
 
@@ -89,7 +118,8 @@ jQuery(function ($) {
 			
             $(this).css('border', '1px solid #ddd');
 			eml_access = true;
-          	step2allval();
+            step2allval();
+            myintroducer();
         } else {
             $(this).css('border', '1px solid red');
 			eml_access = false;
@@ -111,7 +141,8 @@ jQuery(function ($) {
                 if (response == 'exist') {
                     $('#email_addr').css('border', '1px solid red');
                     eml_access = false;
-					step2allval();
+                    step2allval();
+                    myintroducer();
                     return false;
                 }
                 if(response == 'granted'){
@@ -133,7 +164,7 @@ jQuery(function ($) {
             }
             pass_access = true;
             $(this).css('border', '1px solid #ddd');
-			
+			myintroducer();
             step2allval()
         } else {
             $(this).css('border', '1px solid red');
@@ -146,6 +177,7 @@ jQuery(function ($) {
     $('#gender').on('change', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
+            myintroducer();
             step2allval()
         } else {
             $(this).css('border', '1px solid red');
@@ -157,6 +189,7 @@ jQuery(function ($) {
     $('#gov_id_type').on('change', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
+            myintroducer();
             step2allval()
         } else {
             $(this).css('border', '1px solid red');
@@ -168,7 +201,8 @@ jQuery(function ($) {
     $('#gov_docs_number').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step2allval()
+            myintroducer();
+            step2allval();
         } else {
             $(this).css('border', '1px solid red');
             step2allval()
@@ -183,7 +217,7 @@ jQuery(function ($) {
         let gov_id_type = $('#gov_id_type').val();
         let gov_docs_number = $('#gov_docs_number').val();
 
-        if (email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && pass_access === true && eml_access == true) {
+        if (email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && pass_access === true && eml_access == true && introducer_validity == true) {
             $('.next').removeAttr('disabled');
             return true;
         } else {
@@ -245,10 +279,10 @@ jQuery(function ($) {
     $('#billing_zipcode').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step3allval()
+            step3allval();
         } else {
             $(this).css('border', '1px solid red');
-            step3allval()
+            step3allval();
         }
     });
 
@@ -256,23 +290,25 @@ jQuery(function ($) {
     $('#billing_addr_1').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step3allval()
+            step3allval();
+            step2allval();
         } else {
             $(this).css('border', '1px solid red');
-            step3allval()
+            step3allval();
+            step2allval();
         }
     });
 
     // billing_addr_2
-    $('#billing_addr_2').on('keyup', function () {
-        if ($(this).val() !== "") {
-            $(this).css('border', '1px solid #ddd');
-            step3allval()
-        } else {
-            $(this).css('border', '1px solid red');
-            step3allval()
-        }
-    });
+    // $('#billing_addr_2').on('keyup', function () {
+    //     if ($(this).val() !== "") {
+    //         $(this).css('border', '1px solid #ddd');
+    //         step3allval()
+    //     } else {
+    //         $(this).css('border', '1px solid red');
+    //         step3allval()
+    //     }
+    // });
     
     // Step 3 check ability
     function step3allval() {
@@ -284,7 +320,7 @@ jQuery(function ($) {
         let billing_addr_1 = $('#billing_addr_1').val();
         let billing_addr_2 = $('#billing_addr_2').val();
 
-        if (firstname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== "" && billing_addr_2 !== ""  && pass_access == true && eml_access == true) {
+        if (firstname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true) {
             $('.submit').removeAttr('disabled');
             return true;
         } else {
@@ -411,7 +447,7 @@ jQuery(function ($) {
 	
     
     $(".submit").click(function (e) {
-        if (step2allval() == true && step3allval() == true && pass_access == true && eml_access == true) {
+        if (step2allval() == true && step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true) {
             e.preventDefault();
             let isa_num = $('#isa-nombor').val();
             let introducer = $('#introducer-fullname').val();
