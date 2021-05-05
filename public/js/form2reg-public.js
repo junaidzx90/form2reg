@@ -38,6 +38,9 @@ jQuery(function ($) {
                     } else {
                         $('.introducer_profile').slideUp().css('display','none');
                         $('.loading').text("No Introducer Found");
+                        setTimeout(() => {
+                            $('.loading').remove();
+                        }, 2000);
                     }
                     
                     return false;
