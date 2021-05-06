@@ -81,6 +81,7 @@ jQuery(function ($) {
         e.preventDefault();
         $('.introducer_profile').slideUp().css('display','none');
         $('.introducerName').show().children('input').val($('.nameShow').text());
+        $('.selected_user').val($('.nameShow').text());
         $('.next').removeAttr('disabled');
         introducer_validity = true;
     });

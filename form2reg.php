@@ -52,7 +52,6 @@ function form2reg_run(){
     add_action('admin_enqueue_scripts',function(){
         wp_register_script( FORM2REG_NAME, plugin_dir_url( __FILE__ ).'admin/js/form2reg-admin.js', array(), 
         microtime(), true );
-        wp_enqueue_script(FORM2REG_NAME);
         wp_localize_script( FORM2REG_NAME, 'admin_ajax_action', array(
             'ajaxurl' => admin_url( 'admin-ajax.php' )
         ) );
@@ -62,18 +61,12 @@ function form2reg_run(){
     add_action('wp_enqueue_scripts',function(){
         wp_register_style( 'fontawesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css', array(), '', 'all' );
         wp_register_style( FORM2REG_NAME, plugin_dir_url( __FILE__ ).'public/css/form2reg-public.css', array(), microtime(), 'all' );
-        wp_enqueue_style('fontawesome');
-        wp_enqueue_style(FORM2REG_NAME);
 
 		wp_register_script( 'jquery.min', 'https://code.jquery.com/jquery-3.6.0.min.js', array(),
         '', true );
-        wp_enqueue_script('jquery.min');
         wp_register_script( 'easing.min', plugin_dir_url( __FILE__ ).'public/js/easing.min.js', array(),
         microtime(), true );
-        wp_enqueue_script('easing.min');
-        wp_register_script( FORM2REG_NAME, plugin_dir_url( __FILE__ ).'public/js/form2reg-public.js', array(),
-        microtime(), true );
-        wp_enqueue_script(FORM2REG_NAME);
+        wp_register_script( FORM2REG_NAME, plugin_dir_url( __FILE__ ).'public/js/form2reg-public.js', array(), microtime(), true );
         wp_localize_script( FORM2REG_NAME, 'public_ajax_action', array(
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'nonces' )
@@ -535,6 +528,7 @@ function form2reg_run(){
     // Menu callback funnction
     function form2reg_menupage_display(){
         wp_enqueue_script(FORM2REG_NAME);
+
         ?>
         <style>
             p.submit { display: inline-block; }

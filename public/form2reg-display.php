@@ -2,6 +2,11 @@
 function form2reg_display_view($atts){
     ob_start();
     global $current_user;
+    wp_enqueue_style('fontawesome');
+    wp_enqueue_style(FORM2REG_NAME);
+    wp_enqueue_script('jquery.min');
+    wp_enqueue_script('easing.min');
+    wp_enqueue_script(FORM2REG_NAME);
     
     if(is_user_logged_in(  )){
         wp_safe_redirect( home_url( '/' ) );
@@ -59,6 +64,10 @@ function form2reg_display_view($atts){
         <fieldset data="2">
             <h5 class="personaldetails fs-title">Personal Details</h5>
         
+            <div class="selected_user">
+                <input disabled class="selected_user" placeholder="Introducer Full Name" type="text" autocomplete="off" readonly>
+            </div>
+
             <div class="finput-group">
                 <label for="email_addr">Email address</label>
                 <input id="email_addr" name="email_addr" placeholder="Email address" type="email" autofocus>
