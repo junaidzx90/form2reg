@@ -1,6 +1,13 @@
 <?php
 function form2reg_display_view($atts){
     ob_start();
+    global $current_user;
+    
+    if(is_user_logged_in(  )){
+        wp_safe_redirect( home_url( '/' ) );
+        exit;
+    }
+
     // Colors Include
     require_once FORM2REG_PATH.'admin/form2reg-css.php';
     ?>
@@ -46,7 +53,10 @@ function form2reg_display_view($atts){
                     <input id="introducer-fullname" name="introducer-fullname" placeholder="Introducer Full Name" type="text" autocomplete="off" readonly>
                 </div>
             </div>
+            <input type="button" name="next" class="next action-button" value="Next" disabled/>
+        </fieldset>
 
+        <fieldset data="2">
             <h5 class="personaldetails fs-title">Personal Details</h5>
         
             <div class="finput-group">
@@ -84,23 +94,17 @@ function form2reg_display_view($atts){
                 <label for="gov_docs_number">NID / Driving Licence / Passport Number </label>
                 <input id="gov_docs_number" name="gov_docs_number" placeholder="Number" type="text">
             </div>
+        
+            <h5 class="personaldetails fs-title">Contact Details</h5>
 
-            <input type="button" name="previous" class="previous action-button" value="Previous" />
-            <input type="button" name="next" class="next action-button" value="Next" disabled/>
-        </fieldset>
-
-
-        <fieldset data="3">
-            <h2 class="fs-title">Contact Details</h2>
-            
             <div class="finput-group">
                 <label for="firstname">First Name</label>
-                <input id="firstname" name="firstname" placeholder="Enter your first name" type="text" autofocus>
+                <input id="firstname" name="firstname" placeholder="Enter your first name" type="text">
             </div>
 
             <div class="finput-group">
                 <label for="phone">Phone</label>
-                <input id="phone" name="phone" placeholder="Your phone number" type="tel" autofocus>
+                <input id="phone" name="phone" placeholder="Your phone number" type="tel" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
             </div>
 
             <div class="finput-group">
@@ -137,22 +141,22 @@ function form2reg_display_view($atts){
 
             <div class="finput-group">
                 <label for="billing_city">City</label>
-                <input id="billing_city" name="billing_city" placeholder="City name" type="text" autofocus>
+                <input id="billing_city" name="billing_city" placeholder="City name" type="text">
             </div>
 
             <div class="finput-group">
                 <label for="billing_zipcode">Postal Code</label>
-                <input id="billing_zipcode" name="billing_zipcode" placeholder="Postal Code" type="text" autofocus>
+                <input id="billing_zipcode" name="billing_zipcode" placeholder="Postal Code" type="text">
             </div>
 
             <div class="finput-group">
                 <label for="billing_addr_1">Address Line 1</label>
-                <input id="billing_addr_1" name="billing_addr_1" placeholder="State, City, Twon, House" type="text" autofocus>
+                <input id="billing_addr_1" name="billing_addr_1" placeholder="State, City, Twon, House" type="text">
             </div>
 
             <div class="finput-group">
                 <label for="billing_addr_2">Address Line 2</label>
-                <input id="billing_addr_2" name="billing_addr_2" placeholder="State, City, Twon, House" type="text" autofocus>
+                <input id="billing_addr_2" name="billing_addr_2" placeholder="State, City, Twon, House" type="text">
             </div>
             <input type="button" name="previous" class="previous action-button" value="Previous" />
             <input type="submit" name="submit" class="submit action-button" value="Submit" disabled/>

@@ -3,6 +3,7 @@ jQuery(function ($) {
     var pass_access = true;
     var eml_access = true;
     var introducer_validity = true;
+    var name_access = true;
 
     // {FORM ONE / (STEP 1 FORM)}
     // =========================
@@ -11,25 +12,27 @@ jQuery(function ($) {
     // ===========================================
 
     function myintroducer() {
-        if ($('.introducerName').children('input').val() !== "") {
-            $('#isa-nombor').css('border', '1px solid #ddd');
-            if ($('#isa-nombor').val() !== "") {
+        if ($('#isa-nombor').val() !== "") {
+            if ($('.introducerName').children('input').val() !== "") {
+                $('#isa-nombor').css('border', '1px solid #ddd');
                 $('.next').removeAttr('disabled');
                 introducer_validity = true;
-                step2allval();
+            } else {
+                $('.next').prop('disabled', true);
+                $('#isa-nombor').css('border', '1px solid red');
+                introducer_validity = false;
             }
         } else {
             $('.next').prop('disabled', true);
-            $('#isa-nombor').css('border', '1px solid red');
+            $('#isa-nombor').css('border', '1px solid #ddd');
             introducer_validity = false;
-            step2allval();
         }
     }
 
     $('#isa-nombor').on('keyup', function () {
         myintroducer();
+        $('#isa-nombor').css('border', '1px solid #ddd');
         if ($(this).val() !== "") {
-            $(this).css('border', '1px solid #ddd');
             $.ajax({
                 type: "post",
                 url: public_ajax_action.ajaxurl,
@@ -47,10 +50,9 @@ jQuery(function ($) {
                 dataType: 'json',
                 success: function (response) {
                     if (response.name && response.isanumber) {
+                        $('.loading').remove();
                         $('#isa-nombor').css('border', '1px solid #ddd');
                         $('.introducer_profile').slideUp().css('display','none');
-                        $('.loading').remove();
-                        $('.next').removeAttr('disabled');
                         $('.isaShow').text(response.isanumber);
                         $('.nameShow').text(response.name);
                         $('.introducer__img').children('img').attr('src', response.avatar);
@@ -79,6 +81,8 @@ jQuery(function ($) {
         e.preventDefault();
         $('.introducer_profile').slideUp().css('display','none');
         $('.introducerName').show().children('input').val($('.nameShow').text());
+        $('.next').removeAttr('disabled');
+        introducer_validity = true;
     });
 
     // {FORM TWO / (STEP 2 FORM)}
@@ -103,12 +107,12 @@ jQuery(function ($) {
 			
             $(this).css('border', '1px solid #ddd');
 			eml_access = true;
-            step2allval();
             myintroducer();
+            step3allval();
         } else {
             $(this).css('border', '1px solid red');
 			eml_access = false;
-            step2allval()
+            step3allval();
         }
     });
 
@@ -126,13 +130,14 @@ jQuery(function ($) {
                 if (response == 'exist') {
                     $('#email_addr').css('border', '1px solid red');
                     eml_access = false;
-                    step2allval();
+                   
                     myintroducer();
+                    step3allval();
                     return false;
                 }
                 if(response == 'granted'){
                     eml_access = true;
-                    step2allval();
+                    step3allval();
                 }
             }
         });
@@ -143,18 +148,20 @@ jQuery(function ($) {
         if ($(this).val() !== "") {
             if ($(this).val().length < 6) {
                 $(this).css('border', '1px solid red');
+                step3allval();
                 pass_access = false;
-				step2allval();
                 return false;
+            } else {
+                pass_access = true;
+                $(this).css('border', '1px solid #ddd');
+                step3allval();
+                myintroducer();
             }
-            pass_access = true;
-            $(this).css('border', '1px solid #ddd');
-			myintroducer();
-            step2allval()
+            
         } else {
             $(this).css('border', '1px solid red');
+            step3allval();
 			pass_access = false;
-            step2allval()
         }
     });
 
@@ -162,11 +169,11 @@ jQuery(function ($) {
     $('#gender').on('change', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
+            step3allval();
             myintroducer();
-            step2allval()
         } else {
             $(this).css('border', '1px solid red');
-            step2allval()
+            step3allval();
         }
     });
 
@@ -174,11 +181,11 @@ jQuery(function ($) {
     $('#gov_id_type').on('change', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
+            step3allval();
             myintroducer();
-            step2allval()
         } else {
             $(this).css('border', '1px solid red');
-            step2allval()
+            step3allval();
         }
     });
 
@@ -186,31 +193,13 @@ jQuery(function ($) {
     $('#gov_docs_number').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
+            step3allval();
             myintroducer();
-            step2allval();
         } else {
             $(this).css('border', '1px solid red');
-            step2allval()
+            step3allval();
         }
     });
-
-    // Step 2 check ability
-    function step2allval() {
-        let email_addr = $('#email_addr').val();
-        let password = $('#password').val();
-        let gender = $('#gender').val();
-        let gov_id_type = $('#gov_id_type').val();
-        let gov_docs_number = $('#gov_docs_number').val();
-
-        if (email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && pass_access === true && eml_access == true && introducer_validity == true) {
-            $('.next').removeAttr('disabled');
-            return true;
-        } else {
-            $('.next').prop('disabled', true);
-            return false;
-        }
-    }
-
 
     // // {FORM THREE / (STEP 3 FORM)}
     // // ===========================
@@ -219,22 +208,51 @@ jQuery(function ($) {
     $('#firstname').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step3allval()
+            step3allval();
         } else {
             $(this).css('border', '1px solid red');
-            step3allval()
+            step3allval();
         }
     });
+
+    // Check user exist
+    $('#firstname').on('blur', function () {
+        let user_name = $(this).val();
+        $.ajax({
+            type: "post",
+            url: public_ajax_action.ajaxurl,
+            data: {
+                action: 'check_user_name_exists',
+                nonces: public_ajax_action.nonce,
+                user_name: user_name
+            },
+            success: function (response) {
+                if (response == 'exist') {
+                    $('#firstname').css('border', '1px solid red');
+                    name_access = false;
+                
+                    myintroducer();
+                    step3allval();
+                    return false;
+                }
+                if(response == 'granted'){
+                    name_access = true;
+                    $('#firstname').css('border', '1px solid #ddd');
+                    step3allval();
+                }
+            }
+        });
+    })
 
     // phone
     $('#phone').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step3allval()
+            step3allval();
         } else {
             $('#formSubmit').prop('disabled', true);
             $(this).css('border', '1px solid red');
-            step3allval()
+            step3allval();
         }
     });
 
@@ -242,10 +260,10 @@ jQuery(function ($) {
     $('#billing_state').on('change', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step3allval()
+            step3allval();
         } else {
             $(this).css('border', '1px solid red');
-            step3allval()
+            step3allval();
         }
     });
 
@@ -253,10 +271,10 @@ jQuery(function ($) {
     $('#billing_city').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
-            step3allval()
+            step3allval();
         } else {
             $(this).css('border', '1px solid red');
-            step3allval()
+            step3allval();
         }
     });
 
@@ -276,16 +294,21 @@ jQuery(function ($) {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
             step3allval();
-            step2allval();
         } else {
             $(this).css('border', '1px solid red');
             step3allval();
-            step2allval();
         }
     });
     
     // Step 3 check ability
     function step3allval() {
+
+        let email_addr = $('#email_addr').val();
+        let password = $('#password').val();
+        let gender = $('#gender').val();
+        let gov_id_type = $('#gov_id_type').val();
+        let gov_docs_number = $('#gov_docs_number').val();
+
         let firstname = $('#firstname').val();
         let phone = $('#phone').val();
         let billing_state = $('#billing_state').val();
@@ -294,7 +317,7 @@ jQuery(function ($) {
         let billing_addr_1 = $('#billing_addr_1').val();
         let billing_addr_2 = $('#billing_addr_2').val();
 
-        if (firstname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true) {
+        if (firstname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && name_access == true) {
             $('.submit').removeAttr('disabled');
             return true;
         } else {
@@ -318,22 +341,12 @@ jQuery(function ($) {
             } else {
                 $('.next').removeAttr('disabled');
             }
-        
-            let email_addr = $('#email_addr').val();
-            let password = $('#password').val();
-            let gender = $('#gender').val();
-            let gov_id_type = $('#gov_id_type').val();
-            let gov_docs_number = $('#gov_docs_number').val();
-
-            if (email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "") {
-                $('.next').removeAttr('disabled');
-            } else {
-                $('.next').prop('disabled', true);
-                return false;
-            }
         }
 
-        if ($(this).parent().attr('data') == 3) {
+        if ($(this).parent().attr('data') == 2) {
+
+            step3allval();
+
             $('.submit').prop('disabled', true);
             return false;
         }
@@ -421,7 +434,7 @@ jQuery(function ($) {
 	
     
     $(".submit").click(function (e) {
-        if (step2allval() == true && step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true) {
+        if (step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true && name_access == true) {
             e.preventDefault();
             let isa_num = $('#isa-nombor').val();
             let introducer = $('#introducer-fullname').val();

@@ -159,28 +159,14 @@ function form2reg_run(){
     function get_introducer_name(){
         if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
             if(isset($_POST['isanumber'])){
-                if(!empty($_POST['isanumber'])){
-                    global $wpdb,$wp_error;
-                    $isanumber = sanitize_text_field( $_POST['isanumber'] );
-                    $args = array(
-                        'meta_key' => 'my_isa_number',
-                        'meta_value' => $isanumber,
-                        'compare' => '='
-                    );
-                    $introducer_user = new WP_User_Query($args);
-
-                    if(empty($introducer_user)){
-                        echo json_encode(array('error' => 'blank'));
-                        die;
-                    }
-                }
+                $isanumber = sanitize_text_field( $_POST['isanumber'] );
+                $introducer_user = get_user_by( 'login', $isanumber );
+             
                 if($introducer_user){
-                    $introducer_user_id = $introducer_user->results[0]->ID;
-                    $user_name = get_user_by( 'id', $introducer_user_id )->display_name;
-                    $avatar = get_avatar_url($introducer_user_id);
-                    $get_isanumber = get_user_meta($introducer_user_id, 'my_isa_number', true);
+                    $avatar = get_avatar_url($introducer_user->ID);
+                    $get_isanumber = $introducer_user->user_login;
                     
-                    echo json_encode(array('name'=> $user_name, 'avatar' => $avatar, 'isanumber' => $get_isanumber));
+                    echo json_encode(array('name'=> $introducer_user->display_name, 'avatar' => $avatar, 'isanumber' => $get_isanumber));
                     
                     die;
                 }else{
@@ -191,7 +177,7 @@ function form2reg_run(){
         die;
     }
     
-    // get_introducer_name
+    // checking email address
     add_action("wp_ajax_check_user_exists", "check_user_exists");
     add_action("wp_ajax_nopriv_check_user_exists", "check_user_exists");
     function check_user_exists(){
@@ -211,29 +197,63 @@ function form2reg_run(){
         die;
     }
 
+
+    // checking user_name address
+    add_action("wp_ajax_check_user_name_exists", "check_user_name_exists");
+    add_action("wp_ajax_nopriv_check_user_name_exists", "check_user_name_exists");
+    function check_user_name_exists(){
+        if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
+            if(isset($_POST['user_name'])){
+                if(!empty($_POST['user_name'])){
+                    global $wpdb;
+                    if(get_user_by( 'login', sanitize_text_field( $_POST['user_name']) )){
+                        echo 'exist';
+                    }else{
+                        echo 'granted';
+                    }
+                    die;
+                }
+                die;
+            }
+        die;
+    }
+
+
+    function form2reg_isa_generates($name){
+        global $wpdb;
+        $username1 = $name;
+        $get_before_u = $wpdb->get_row("SELECT MAX(ID) as ID,user_nicename FROM {$wpdb->prefix}users WHERE ID < ( SELECT MAX( ID ) FROM {$wpdb->prefix}users )");
+
+        $user = $wpdb->get_row("SELECT user_nicename FROM {$wpdb->prefix}users WHERE ID = $get_before_u->ID");
+        $username = substr($get_before_u->user_nicename,0,3);
+
+        if(!empty($username)){
+            if($username == "isa" || $username == "ISA"){
+                $unique = substr($user->user_nicename,3);
+                return $username = "ISA".($unique+1);
+            }else{
+                return $username1;
+            }
+        }
+
+    }
+
     // form2reg_register_user
     add_action("wp_ajax_form2reg_register_user", "form2reg_register_user");
     add_action("wp_ajax_nopriv_form2reg_register_user", "form2reg_register_user");
     function form2reg_register_user(){
         if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
+            global $wpdb;
+            $introducer_isa_number = get_option('default_isa_number');
 
-            if($_POST['isa_num']){
-                $introducer_isa = sanitize_text_field( $_POST['isa_num'] );
-                $args = array(
-                    'meta_key' => 'my_isa_number',
-                    'meta_value' => $introducer_isa,
-                    'compare' => '='
-                );
-                $introducer_user = new WP_User_Query($args);
-
-                if(!$introducer_user){
-                    wp_die();
+            if(isset($_POST['data']['isa_num'])){
+                $introducer_isa = sanitize_text_field( $_POST['data']['isa_num'] );
+                if($u = get_user_by( 'login', $introducer_isa )){
+                    $introducer_isa_number = $u->ID;
                 }
             }
             
-
-            $isa_num = rand(5,9999);
-            $introducer = sanitize_text_field($_POST['data']['introducer']);
+            $introducer_name = sanitize_text_field($_POST['data']['introducer']);
             $email = sanitize_email($_POST['data']['email']);
             $pass = sanitize_text_field($_POST['data']['pass']);
             $gender_ = sanitize_text_field($_POST['data']['gender_']);
@@ -247,9 +267,21 @@ function form2reg_run(){
             $_addr_1 = sanitize_text_field($_POST['data']['_addr_1']);
             $_addr_2 = sanitize_text_field($_POST['data']['_addr_2']);
 
-            if(!empty($introducer) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
+            $myname = form2reg_isa_generates($fname);
+            $getuserdata = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}users WHERE user_email = '$email' OR user_login = '$myname'");
+
+            
+            
+            if( $getuserdata ){
+                echo 'User Exist';
+                die;
+            }
+            
+            if(!empty($introducer_isa_number) && !empty($introducer_name) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
+                
                 $userdata = array(
-                    'user_login'    =>  $fname,
+                    'user_login'    =>  form2reg_isa_generates($fname),
+                    'user_nicename'    =>  form2reg_isa_generates($fname),
                     'user_email'     =>  $email,
                     'user_pass'     =>  $pass,
                     'role'          => (get_option('form2reg_user_role')?get_option('form2reg_user_role'):'subscriber'),
@@ -257,38 +289,67 @@ function form2reg_run(){
                 );
                 $user_id = wp_insert_user( $userdata );
                 
-                $usermeta = update_user_meta( $user_id, 'my_isa_number', $isa_num );
-                $usermeta = update_user_meta( $user_id, 'gender', $gender_ );
-                $usermeta = update_user_meta( $user_id, 'gov_id_type', $id_type );
-                $usermeta = update_user_meta( $user_id, 'identity_number', $id_number );
-                $usermeta = update_user_meta( $user_id, 'phone_number', $phone_ );
+                if(!$user_id){
+                    echo 'Error';
+                    die;
+                }
+
+                $usermeta = update_user_meta( $user_id, 'billing_first_name', $fname );
+                $usermeta = update_user_meta( $user_id, 'billing_silver_introducer', $introducer_name );
+                $usermeta = update_user_meta( $user_id, 'billing_gender', $gender_ );
+                $usermeta = update_user_meta( $user_id, 'reg_billing_nicch', $id_type );
+                $usermeta = update_user_meta( $user_id, 'reg_billing_nic', $id_number );
+                $usermeta = update_user_meta( $user_id, 'billing_phone', $phone_ );
                 $usermeta = update_user_meta( $user_id, 'billing_state', $_state );
-                $usermeta = update_user_meta( $user_id, 'city', $_city );
-                $usermeta = update_user_meta( $user_id, 'postalcode', $_zipcode );
-                $usermeta = update_user_meta( $user_id, 'address_line_1', $_addr_1 );
-                $usermeta = update_user_meta( $user_id, 'address_line_2', $_addr_2 );
+                $usermeta = update_user_meta( $user_id, 'billing_city', $_city );
+                $usermeta = update_user_meta( $user_id, 'billing_postcode', $_zipcode );
+                $usermeta = update_user_meta( $user_id, 'billing_address_1', $_addr_1 );
+                $usermeta = update_user_meta( $user_id, 'billing_address_2', $_addr_2 );
+
+                $reffer_table = $wpdb->prefix.'refferels';
+                if($introducer_isa_number){
+                    $wpdb->insert(
+                        $reffer_table,
+                        array(
+                            'parent_id' => $introducer_isa_number,
+                            'user_id' => $user_id,
+                            'isa_num' => form2reg_isa_generates($fname),
+                            'username' => form2reg_isa_generates($fname),
+                        ),
+                        array('%d','%d','%s','%s')
+                    );
+                }
+
                 global $wp_error;
-                if(!is_wp_error($usermeta)){
+                if(!is_wp_error($usermeta) || !is_wp_error($wpdb)){
+                    if ( $myaccess = get_user_by_email( $email ) ) {
+                        // check the user's login with their password.
+                        if ( wp_check_password( $pass, $myaccess->user_pass, $myaccess->ID ) ) {
+                            wp_clear_auth_cookie();
+                            wp_set_current_user($myaccess->ID);
+                            wp_set_auth_cookie($myaccess->ID);
+                        }
+                    }
                     echo $user_id;
                     die;
                 }else{
-                    delete_user_meta( $user_id, 'my_isa_number');
-                    delete_user_meta( $user_id, 'gender');
-                    delete_user_meta( $user_id, 'gov_id_type');
-                    delete_user_meta( $user_id, 'identity_number');
-                    delete_user_meta( $user_id, 'phone_number');
+                    delete_user_meta( $user_id, 'billing_first_name');
+                    delete_user_meta( $user_id, 'billing_silver_introducer');
+                    delete_user_meta( $user_id, 'billing_gender');
+                    delete_user_meta( $user_id, 'reg_billing_nicch');
+                    delete_user_meta( $user_id, 'billing_phone');
                     delete_user_meta( $user_id, 'billing_state');
-                    delete_user_meta( $user_id, 'city');
-                    delete_user_meta( $user_id, 'postalcode');
-                    delete_user_meta( $user_id, 'address_line_1');
-                    delete_user_meta( $user_id, 'address_line_2');
+                    delete_user_meta( $user_id, 'billing_state');
+                    delete_user_meta( $user_id, 'billing_city');
+                    delete_user_meta( $user_id, 'billing_postcode');
+                    delete_user_meta( $user_id, 'billing_address_1');
+                    delete_user_meta( $user_id, 'billing_address_2');
                     wp_delete_user( $user_id );
                 }
                 die;
             }
         die;
     }
-
 
     add_action( 'show_user_profile', 'extra_user_profile_fields' );
     add_action( 'edit_user_profile', 'extra_user_profile_fields' );
@@ -298,19 +359,19 @@ function form2reg_run(){
 
         <table class="form-table">
         <tr>
-            <th><label for="introducer_isa"><?php _e("Introducer ISA"); ?></label></th>
+            <th><label for="billing_silver_introducer"><?php _e("Introducer Name"); ?></label></th>
             <td>
-                <input type="text" name="introducer_isa" id="introducer_isa" value="<?php echo esc_attr( get_the_author_meta( 'my_isa_number', $user->ID ) ); ?>" class="regular-text" /><br />
-                <span class="description"><?php _e("Please enter your Introducer isa."); ?></span>
+                <input readonly disabled type="text" name="billing_silver_introducer" id="billing_silver_introducer" value="<?php echo esc_attr( get_the_author_meta( 'billing_silver_introducer', $user->ID ) ); ?>" class="regular-text" /><br />
+                <span class="description"><?php _e("Introducer Name."); ?></span>
             </td>
         </tr>
         <tr>
             <th><label for="Gender"><?php _e("Gender"); ?></label></th>
             <td>
-                <select name="gender" id="gender">
+                <select name="billing_gender" id="billing_gender">
                     <?php
-                    if(get_the_author_meta( 'gender', $user->ID )){
-                        echo '<option selected value="'.strtolower( get_the_author_meta( 'gender', $user->ID ) ).'">'.esc_attr( ucfirst(get_the_author_meta( 'gender', $user->ID) ) ).'</option>';
+                    if(get_the_author_meta( 'billing_gender', $user->ID )){
+                        echo '<option selected value="'.strtolower( get_the_author_meta( 'billing_gender', $user->ID ) ).'">'.esc_attr( ucfirst(get_the_author_meta( 'billing_gender', $user->ID) ) ).'</option>';
                     }
                     ?>
                     <option value="">Select Gender</option>
@@ -318,16 +379,16 @@ function form2reg_run(){
                     <option value="female">Female</option>
                     <option value="other">Other</option>
                 </select><br />
-                <span class="description"><?php _e("Please enter your Gender."); ?></span>
+                <span class="description"><?php _e("User Gender."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="gov_id_type"><?php _e("City"); ?></label></th>
+            <th><label for="reg_billing_nicch"><?php _e("City"); ?></label></th>
             <td>
-                <select name="gov_id_type" id="gov_id_type"> 
+                <select name="reg_billing_nicch" id="reg_billing_nicch"> 
                     <?php
-                    if(get_the_author_meta( 'gov_id_type', $user->ID )){
-                        echo '<option selected value="'.strtolower( get_the_author_meta( 'gov_id_type', $user->ID ) ).'">'.esc_attr( ucfirst(get_the_author_meta( 'gov_id_type', $user->ID) ) ).'</option>';
+                    if(get_the_author_meta( 'reg_billing_nicch', $user->ID )){
+                        echo '<option selected value="'.strtolower( get_the_author_meta( 'reg_billing_nicch', $user->ID ) ).'">'.esc_attr( ucfirst(get_the_author_meta( 'reg_billing_nicch', $user->ID) ) ).'</option>';
                     }
                     ?>
                     <option value="">Select</option> 
@@ -335,21 +396,21 @@ function form2reg_run(){
                     <option value="passp">Passport</option>
                     <option value="dlicense">Driving License</option>
                 </select><br />
-                <span class="description"><?php _e("Please enter your ID Type."); ?></span>
+                <span class="description"><?php _e("ID Type."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="identity_number"><?php _e("Identity Number"); ?></label></th>
+            <th><label for="reg_billing_nic"><?php _e("Identity Number"); ?></label></th>
             <td>
-                <input type="text" name="identity_number" id="identity_number" value="<?php echo esc_attr( get_the_author_meta( 'identity_number', $user->ID ) ); ?>" class="regular-text" /><br />
+                <input type="text" name="reg_billing_nic" id="reg_billing_nic" value="<?php echo esc_attr( get_the_author_meta( 'reg_billing_nic', $user->ID ) ); ?>" class="regular-text" /><br />
                 <span class="description"><?php _e("Please enter your identity number."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="phone_number"><?php _e("Phone Number"); ?></label></th>
+            <th><label for="billing_phone"><?php _e("Phone Number"); ?></label></th>
             <td>
-                <input type="text" name="phone_number" id="phone_number" value="<?php echo ( get_the_author_meta( 'phone_number', $user->ID ) ); ?>" class="regular-text" /><br />
-                <span class="description"><?php _e("Please enter your phone number."); ?></span>
+                <input type="text" name="billing_phone" id="billing_phone" value="<?php echo ( get_the_author_meta( 'billing_phone', $user->ID ) ); ?>" class="regular-text" /><br />
+                <span class="description"><?php _e("Phone number."); ?></span>
             </td>
         </tr>
         <tr>
@@ -388,35 +449,35 @@ function form2reg_run(){
                     <option value="Monaragala">Monaragala</option>
                     <option value="Kilinochchi">Kilinochchi</option>
                 </select><br />
-                <span class="description"><?php _e("Please enter your billing state."); ?></span>
+                <span class="description"><?php _e("Billing state."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="city"><?php _e("City"); ?></label></th>
+            <th><label for="billing_city"><?php _e("City"); ?></label></th>
             <td>
-                <input type="text" name="city" id="city" value="<?php echo esc_attr( get_the_author_meta( 'city', $user->ID ) ); ?>" class="regular-text" /><br />
+                <input type="text" name="billing_city" id="billing_city" value="<?php echo esc_attr( get_the_author_meta( 'billing_city', $user->ID ) ); ?>" class="regular-text" /><br />
                 <span class="description"><?php _e("Please enter your city."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="postalcode"><?php _e("Postal Code"); ?></label></th>
+            <th><label for="billing_postcode"><?php _e("Postal Code"); ?></label></th>
             <td>
-                <input type="text" name="postalcode" id="postalcode" value="<?php echo esc_attr( get_the_author_meta( 'postalcode', $user->ID ) ); ?>" class="regular-text" /><br />
-                <span class="description"><?php _e("Please enter your postal code."); ?></span>
+                <input type="text" name="billing_postcode" id="billing_postcode" value="<?php echo esc_attr( get_the_author_meta( 'billing_postcode', $user->ID ) ); ?>" class="regular-text" /><br />
+                <span class="description"><?php _e("Postalcode."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="address_line_1"><?php _e("Address Line 1"); ?></label></th>
+            <th><label for="billing_address_1"><?php _e("Address Line 1"); ?></label></th>
             <td>
-                <input type="text" name="address_line_1" id="address_line_1" value="<?php echo esc_attr( get_the_author_meta( 'address_line_1', $user->ID ) ); ?>" class="regular-text" /><br />
-                <span class="description"><?php _e("Please enter your address line 1."); ?></span>
+                <input type="text" name="billing_address_1" id="billing_address_1" value="<?php echo esc_attr( get_the_author_meta( 'billing_address_1', $user->ID ) ); ?>" class="regular-text" /><br />
+                <span class="description"><?php _e("Address line 1."); ?></span>
             </td>
         </tr>
         <tr>
-            <th><label for="address_line_2"><?php _e("Address Line 2"); ?></label></th>
+            <th><label for="billing_address_2"><?php _e("Address Line 2"); ?></label></th>
             <td>
-                <input type="text" name="address_line_2" id="address_line_2" value="<?php echo esc_attr( get_the_author_meta( 'address_line_2', $user->ID ) ); ?>" class="regular-text" /><br />
-                <span class="description"><?php _e("Please enter your address line 2."); ?></span>
+                <input type="text" name="billing_address_2" id="billing_address_2" value="<?php echo esc_attr( get_the_author_meta( 'billing_address_2', $user->ID ) ); ?>" class="regular-text" /><br />
+                <span class="description"><?php _e("Address line 2."); ?></span>
             </td>
         </tr>
         </table>
@@ -434,16 +495,17 @@ function form2reg_run(){
         if ( !current_user_can( 'edit_user', $user_id ) ) { 
             return false; 
         }
-        update_user_meta( $user_id, 'my_isa_number', $_POST['my_isa_number'] );
-        update_user_meta( $user_id, 'gender', $_POST['gender'] );
-        update_user_meta( $user_id, 'gov_id_type', $_POST['gov_id_type'] );
-        update_user_meta( $user_id, 'identity_number', $_POST['identity_number'] );
-        update_user_meta( $user_id, 'phone_number', $_POST['phone_number'] );
+
+        //update_user_meta( $user_id, 'billing_silver_introducer', $_POST['billing_first_name'] );
+        update_user_meta( $user_id, 'billing_gender', $_POST['billing_gender'] );
+        update_user_meta( $user_id, 'reg_billing_nicch', $_POST['reg_billing_nicch'] );
+        update_user_meta( $user_id, 'reg_billing_nic', $_POST['reg_billing_nic'] );
+        update_user_meta( $user_id, 'billing_phone', $_POST['billing_phone'] );
         update_user_meta( $user_id, 'billing_state', $_POST['billing_state'] );
-        update_user_meta( $user_id, 'city', $_POST['city'] );
-        update_user_meta( $user_id, 'postalcode', $_POST['postalcode'] );
-        update_user_meta( $user_id, 'address_line_1', $_POST['address_line_1'] );
-        update_user_meta( $user_id, 'address_line_2', $_POST['address_line_2'] );
+        update_user_meta( $user_id, 'billing_city', $_POST['billing_city'] );
+        update_user_meta( $user_id, 'billing_postcode', $_POST['billing_postcode'] );
+        update_user_meta( $user_id, 'billing_address_1', $_POST['billing_address_1'] );
+        update_user_meta( $user_id, 'billing_address_2', $_POST['billing_address_2'] );
     }
 
     // form2reg_reset_colors
