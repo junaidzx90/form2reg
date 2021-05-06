@@ -108,12 +108,16 @@ function form2reg_run(){
         register_setting( 'form2reg_colors_section', 'form2reg_next_button');
 
         //form2reg_form_width
-        add_settings_field( 'form2reg_form_width', 'Form Background', 'form2reg_form_width_func', 'form2reg_colors', 'form2reg_colors_section');
+        add_settings_field( 'form2reg_form_width', 'Form Width', 'form2reg_form_width_func', 'form2reg_colors', 'form2reg_colors_section');
         register_setting( 'form2reg_colors_section', 'form2reg_form_width');
 
         //form2reg_user_role
-        add_settings_field( 'form2reg_user_role', 'Form Background', 'form2reg_user_role_func', 'form2reg_colors', 'form2reg_colors_section');
+        add_settings_field( 'form2reg_user_role', 'Define a role', 'form2reg_user_role_func', 'form2reg_colors', 'form2reg_colors_section');
         register_setting( 'form2reg_colors_section', 'form2reg_user_role');
+        
+        //form2reg_default_isa_id
+        add_settings_field( 'form2reg_default_isa_id', 'Default ISA ID', 'form2reg_default_isa_id_func', 'form2reg_colors', 'form2reg_colors_section');
+        register_setting( 'form2reg_colors_section', 'form2reg_default_isa_id');
     });
 
     // form2reg_form_bg_func
@@ -143,7 +147,7 @@ function form2reg_run(){
 
     // form2reg_form_width_func
     function form2reg_form_width_func(){
-        echo '<input type="text" value="'.(get_option("form2reg_form_width")?get_option("form2reg_form_width"):'550px').'" name="form2reg_form_width">';
+        echo '<input type="text" value="'.(get_option("form2reg_form_width")?get_option("form2reg_form_width"):'550px').'" name="form2reg_form_width" placeholder="Form width">';
     }
 
     // form2reg_user_role_func
@@ -151,6 +155,11 @@ function form2reg_run(){
         echo '<select name="form2reg_user_role">';
         echo wp_dropdown_roles( get_option("form2reg_user_role") );
         echo '</select>';
+    }
+
+    // form2reg_default_isa_id_func
+    function form2reg_default_isa_id_func(){
+        echo '<input type="text" value="'.(get_option("form2reg_default_isa_id")?get_option("form2reg_default_isa_id"):'').'" name="form2reg_default_isa_id" placeholder="Admin ID">';
     }
 
     // get_introducer_name
@@ -244,7 +253,7 @@ function form2reg_run(){
     function form2reg_register_user(){
         if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
             global $wpdb;
-            $introducer_isa_number = get_option('default_isa_number');
+            $introducer_isa_number = get_option("form2reg_default_isa_id")?get_option("form2reg_default_isa_id"):'1';
 
             if(isset($_POST['data']['isa_num'])){
                 $introducer_isa = sanitize_text_field( $_POST['data']['isa_num'] );
