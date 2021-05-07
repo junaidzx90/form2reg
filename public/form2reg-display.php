@@ -1,6 +1,9 @@
 <?php
 function form2reg_display_view($atts){
     ob_start();
+    if(session_id() == ''){
+        session_start();
+    }
     global $current_user;
     wp_enqueue_style('fontawesome');
     wp_enqueue_style(FORM2REG_NAME);
@@ -34,8 +37,9 @@ function form2reg_display_view($atts){
             </div>
 
             <div class="finput-group">
-                <label for="isa-nombor">I don't have ISA No</label>
-                <input type="checkbox" name="noisanum" id="noisanum">
+                <label for="noisanum" class="noisanum">I don't have ISA No
+                    <input value="0" type="checkbox" name="noisanum" id="noisanum">
+                </label>
             </div>
 
             <div class="finput-group profileshows">

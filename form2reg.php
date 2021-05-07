@@ -111,6 +111,10 @@ function form2reg_run(){
         //form2reg_default_isa_id
         add_settings_field( 'form2reg_default_isa_id', 'Default ISA ID', 'form2reg_default_isa_id_func', 'form2reg_colors', 'form2reg_colors_section');
         register_setting( 'form2reg_colors_section', 'form2reg_default_isa_id');
+
+        //form2reg_default_isa_number
+        add_settings_field( 'form2reg_default_isa_number', 'Default ISA Number', 'form2reg_default_isa_number_func', 'form2reg_colors', 'form2reg_colors_section');
+        register_setting( 'form2reg_colors_section', 'form2reg_default_isa_number');
     });
 
     // form2reg_form_bg_func
@@ -153,6 +157,13 @@ function form2reg_run(){
     // form2reg_default_isa_id_func
     function form2reg_default_isa_id_func(){
         echo '<input type="text" value="'.(get_option("form2reg_default_isa_id")?get_option("form2reg_default_isa_id"):'').'" name="form2reg_default_isa_id" placeholder="Admin ID">';
+        echo '<br><small>Default value <strong>1</strong></small>';
+    }
+
+    // form2reg_default_isa_number_func
+    function form2reg_default_isa_number_func(){
+        echo '<input type="text" value="'.(get_option("form2reg_default_isa_number")?get_option("form2reg_default_isa_number"):'').'" name="form2reg_default_isa_number" placeholder="Admin ISA Number">';
+        echo '<br><small>Default value <strong>ISA1</strong></small>';
     }
 
     // get_introducer_name
@@ -222,25 +233,33 @@ function form2reg_run(){
 
     // Generate Unique ISA Number
     function form2reg_isa_generates(){
-        $uniquenum = '';
-        $uniquenum = 'isa'.rand(1,9999);
-
-        if(get_user_by( 'login', $uniquenum )){
-            $uniquenum = 'isa'.rand(1,9999);
-        }
-
-        // For one day
-        setcookie('uniquenum', $uniquenum, time() + (86400 * 30), "/");
-        $username = $_COOKIE['uniquenum'];
-
-        if(isset($_COOKIE['uniquenum'])){
-            $username = $_COOKIE['uniquenum'];
+        if(isset($_SESSION['uniquenum'])){
+            $username = $_SESSION['uniquenum'];
         }else{
-            setcookie('uniquenum', $uniquenum, time() + (86400 * 30), "/");
-            $username = $_COOKIE['uniquenum'];
+            $uniquenum = 'isa'.rand(1,9999);
+            if(get_user_by( 'login', $uniquenum )){
+                $uniquenum = 'isa'.rand(1,9999);
+            }
+
+            $_SESSION['uniquenum'] = $uniquenum;
+            $username = $_SESSION['uniquenum'];
         }
         
         return $username;
+    }
+
+    // GET Default ISA Number
+    add_action("wp_ajax_get_default_introducer_isa", "get_default_introducer_isa");
+    add_action("wp_ajax_nopriv_get_default_introducer_isa", "get_default_introducer_isa");
+    function get_default_introducer_isa(){
+        if(wp_verify_nonce( $_POST['nonces'], 'nonces' )){
+            $isa_number = get_option("form2reg_default_isa_number")? get_option("form2reg_default_isa_number"):'ISA1';
+            $disaname = get_user_by( 'login', $isa_number )->display_name;
+            
+            echo json_encode(array('number' => $isa_number, 'name' => $disaname));
+            die;
+        }
+        die;
     }
 
     // form2reg_register_user
@@ -333,6 +352,8 @@ function form2reg_run(){
                             wp_clear_auth_cookie();
                             wp_set_current_user($myaccess->ID);
                             wp_set_auth_cookie($myaccess->ID);
+                            // remove unique isa number
+                            unset($_SESSION['uniquenum']);
                         }
                     }
                     echo $user_id;

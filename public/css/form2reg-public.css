@@ -135,6 +135,15 @@ span.showpass {
   display: inline-block;
   position: relative;
 }
+input#noisanum {
+  width: fit-content;
+  display: inline-block;
+  margin-left: 15px;
+  cursor: pointer;
+}
+label.noisanum {
+  cursor: pointer;
+}
 #form2reg_reg__form #progressbar li:before {
   content: counter(step);
   counter-increment: step;

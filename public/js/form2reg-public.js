@@ -44,6 +44,7 @@ jQuery(function ($) {
                 cache: false,
                 beforeSend: () => {
                     $('.next').prop('disabled', true);
+                    $('.noisanum').show();
                     $('.loading').remove();
                     $('.profileshows').append('<span class="loading">Processing...</span>');
                 },
@@ -51,6 +52,7 @@ jQuery(function ($) {
                 success: function (response) {
                     if (response.name && response.isanumber) {
                         $('.loading').remove();
+                        $('.noisanum').hide();
                         $('#isa-nombor').css('border', '1px solid #ddd');
                         $('.introducer_profile').slideUp().css('display','none');
                         $('.isaShow').text(response.isanumber);
@@ -58,6 +60,7 @@ jQuery(function ($) {
                         $('.introducer__img').children('img').attr('src', response.avatar);
                         $('.introducer_profile').css('display','flex').slideDown();
                     } else {
+                        $('.noisanum').show();
                         $('.introducerName').hide().children('input').val('');
                         $('#isa-nombor').css('border', '1px solid red');
                         $('.introducer_profile').slideUp().css('display','none');
@@ -74,31 +77,54 @@ jQuery(function ($) {
             $('.introducer_profile').slideUp().css('display','none');
             $(this).css('border', '1px solid red');
             $('.loading').remove();
-            // $.ajax({
-            //     type: "post",
-            //     url: public_ajax_action.ajaxurl,
-            //     data: {
-            //         action: 'get_default_introducer_isa',
-            //         isanumber: $('#isa-nombor').val(),
-            //         nonces: public_ajax_action.nonce
-            //     },
-            //     cache: false,
-            //     beforeSend: () => {
-            //         $('.next').prop('disabled', true);
-            //         $('.loading').remove();
-            //         $('.profileshows').append('<span class="loading">Processing...</span>');
-            //     },
-            //     success: function (response) {
-            //         $('.introducer_profile').slideUp().css('display','none');
-            //         $(this).css('border', '1px solid red');
-            //         $('.loading').remove();
-            //     }
-            // });
+        }
+    });
+
+    // Get default isa
+    function get_default_isa_num() {
+        $.ajax({
+            type: "post",
+            url: public_ajax_action.ajaxurl,
+            data: {
+                action: 'get_default_introducer_isa',
+                nonces: public_ajax_action.nonce
+            },
+            cache: false,
+            beforeSend: () => {
+                $('.next').prop('disabled', true);
+                $('.loading').remove();
+                $('.profileshows').append('<span class="loading">Processing...</span>');
+            },
+            dataType: 'json',
+            success: function (response) {
+                $('.loading').remove();
+                $('.next').removeAttr('disabled');
+                $('#isa-nombor').val(response.number).prop('disabled', true);
+                $('.introducerName').children('input').val(response.name);
+                $('.selected_user').val(response.name);
+            }
+        });
+    }
+
+    $('#noisanum').on('click', function () {
+        if ($(this).val() == 0) {
+            $(this).val(1);
+            introducer_validity = true;
+            get_default_isa_num();
+            myintroducer();
+        } else {
+            $(this).val(0);
+            $('#isa-nombor').val('').removeAttr('disabled');
+            $('.introducerName').children('input').val('');
+            introducer_validity = false;
+            myintroducer();
+            $('.next').prop('disabled', true);
         }
     });
     
     $('#select-introducer').on('click', function (e) {
         e.preventDefault();
+        $('.noisanum').hide();
         $('.introducer_profile').slideUp().css('display','none');
         $('.introducerName').show().children('input').val($('.nameShow').text());
         $('.selected_user').val($('.nameShow').text());
