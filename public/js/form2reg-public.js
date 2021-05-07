@@ -74,6 +74,26 @@ jQuery(function ($) {
             $('.introducer_profile').slideUp().css('display','none');
             $(this).css('border', '1px solid red');
             $('.loading').remove();
+            // $.ajax({
+            //     type: "post",
+            //     url: public_ajax_action.ajaxurl,
+            //     data: {
+            //         action: 'get_default_introducer_isa',
+            //         isanumber: $('#isa-nombor').val(),
+            //         nonces: public_ajax_action.nonce
+            //     },
+            //     cache: false,
+            //     beforeSend: () => {
+            //         $('.next').prop('disabled', true);
+            //         $('.loading').remove();
+            //         $('.profileshows').append('<span class="loading">Processing...</span>');
+            //     },
+            //     success: function (response) {
+            //         $('.introducer_profile').slideUp().css('display','none');
+            //         $(this).css('border', '1px solid red');
+            //         $('.loading').remove();
+            //     }
+            // });
         }
     });
     
@@ -216,6 +236,17 @@ jQuery(function ($) {
         }
     });
 
+    // firstname
+    $('#iitialsname').on('keyup', function () {
+        if ($(this).val() !== "") {
+            $(this).css('border', '1px solid #ddd');
+            step3allval();
+        } else {
+            $(this).css('border', '1px solid red');
+            step3allval();
+        }
+    });
+
     // Check user exist
     $('#firstname').on('blur', function () {
         let user_name = $(this).val();
@@ -311,6 +342,7 @@ jQuery(function ($) {
         let gov_docs_number = $('#gov_docs_number').val();
 
         let firstname = $('#firstname').val();
+        let iitialsname = $('#iitialsname').val();
         let phone = $('#phone').val();
         let billing_state = $('#billing_state').val();
         let billing_city = $('#billing_city').val();
@@ -318,7 +350,7 @@ jQuery(function ($) {
         let billing_addr_1 = $('#billing_addr_1').val();
         let billing_addr_2 = $('#billing_addr_2').val();
 
-        if (firstname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && name_access == true) {
+        if (firstname !== "" && iitialsname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && name_access == true) {
             $('.submit').removeAttr('disabled');
             return true;
         } else {
@@ -445,6 +477,7 @@ jQuery(function ($) {
             let id_type = $('#gov_id_type').val();
             let id_number = $('#gov_docs_number').val();
             
+            let iitialsname = $('#iitialsname').val();
             let fname = $('#firstname').val();
             let phone_ = $('#phone').val();
             let _state = $('#billing_state').val();
@@ -454,7 +487,7 @@ jQuery(function ($) {
             let _addr_2 = $('#billing_addr_2').val();
 
             let data = {
-                isa_num,introducer,email,pass,gender_,id_type,id_number,fname,phone_,_state,_city,_zipcode,_addr_1,_addr_2
+                isa_num,introducer,email,pass,gender_,id_type,id_number,fname,iitialsname,phone_,_state,_city,_zipcode,_addr_1,_addr_2
             }
 
             $.ajax({

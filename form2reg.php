@@ -220,24 +220,27 @@ function form2reg_run(){
         die;
     }
 
+    // Generate Unique ISA Number
+    function form2reg_isa_generates(){
+        $uniquenum = '';
+        $uniquenum = 'isa'.rand(1,9999);
 
-    function form2reg_isa_generates($name){
-        global $wpdb;
-        $username1 = $name;
-        $get_before_u = $wpdb->get_row("SELECT MAX(ID) as ID,user_nicename FROM {$wpdb->prefix}users WHERE ID < ( SELECT MAX( ID ) FROM {$wpdb->prefix}users )");
-
-        $user = $wpdb->get_row("SELECT user_nicename FROM {$wpdb->prefix}users WHERE ID = $get_before_u->ID");
-        $username = substr($get_before_u->user_nicename,0,3);
-
-        if(!empty($username)){
-            if($username == "isa" || $username == "ISA"){
-                $unique = substr($user->user_nicename,3);
-                return $username = "ISA".($unique+1);
-            }else{
-                return $username1;
-            }
+        if(get_user_by( 'login', $uniquenum )){
+            $uniquenum = 'isa'.rand(1,9999);
         }
 
+        // For one day
+        setcookie('uniquenum', $uniquenum, time() + (86400 * 30), "/");
+        $username = $_COOKIE['uniquenum'];
+
+        if(isset($_COOKIE['uniquenum'])){
+            $username = $_COOKIE['uniquenum'];
+        }else{
+            setcookie('uniquenum', $uniquenum, time() + (86400 * 30), "/");
+            $username = $_COOKIE['uniquenum'];
+        }
+        
+        return $username;
     }
 
     // form2reg_register_user
@@ -261,6 +264,7 @@ function form2reg_run(){
             $gender_ = sanitize_text_field($_POST['data']['gender_']);
             $id_type = sanitize_text_field($_POST['data']['id_type']);
             $id_number = sanitize_text_field($_POST['data']['id_number']);
+            $iitialsname = sanitize_text_field($_POST['data']['iitialsname']);
             $fname = sanitize_text_field($_POST['data']['fname']);
             $phone_ = intval($_POST['data']['phone_']);
             $_state = sanitize_text_field($_POST['data']['_state']);
@@ -269,21 +273,19 @@ function form2reg_run(){
             $_addr_1 = sanitize_text_field($_POST['data']['_addr_1']);
             $_addr_2 = sanitize_text_field($_POST['data']['_addr_2']);
 
-            $myname = form2reg_isa_generates($fname);
+            $myname = form2reg_isa_generates();
             $getuserdata = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}users WHERE user_email = '$email' OR user_login = '$myname'");
-
-            
             
             if( $getuserdata ){
                 echo 'User Exist';
                 die;
             }
             
-            if(!empty($introducer_isa_number) && !empty($introducer_name) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
+            if(!empty($introducer_isa_number) && !empty($introducer_name) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($iitialsname) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
                 
                 $userdata = array(
-                    'user_login'    =>  form2reg_isa_generates($fname),
-                    'user_nicename'    =>  form2reg_isa_generates($fname),
+                    'user_login'    =>  form2reg_isa_generates(),
+                    'user_nicename'    =>  form2reg_isa_generates(),
                     'user_email'     =>  $email,
                     'user_pass'     =>  $pass,
                     'role'          => (get_option('form2reg_user_role')?get_option('form2reg_user_role'):'subscriber'),
@@ -296,6 +298,7 @@ function form2reg_run(){
                     die;
                 }
 
+                $usermeta = update_user_meta( $user_id, 'reg_billing_ncfull_name', $iitialsname );
                 $usermeta = update_user_meta( $user_id, 'billing_first_name', $fname );
                 $usermeta = update_user_meta( $user_id, 'billing_silver_introducer', $introducer_name );
                 $usermeta = update_user_meta( $user_id, 'billing_gender', $gender_ );
@@ -315,8 +318,8 @@ function form2reg_run(){
                         array(
                             'parent_id' => $introducer_isa_number,
                             'user_id' => $user_id,
-                            'isa_num' => form2reg_isa_generates($fname),
-                            'username' => form2reg_isa_generates($fname),
+                            'isa_num' => form2reg_isa_generates(),
+                            'username' => form2reg_isa_generates(),
                         ),
                         array('%d','%d','%s','%s')
                     );

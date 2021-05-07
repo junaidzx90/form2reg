@@ -29,8 +29,13 @@ function form2reg_display_view($atts){
             <h3 class="fs-subtitle"></h3>
             
             <div class="finput-group">
-                <label for="isa-nombor">eCustomer Introducer ISA NO</label>
+                <label for="isa-nombor">eCustomer Introducer ISA No</label>
                 <input id="isa-nombor" name="isa-nombor" placeholder="ISA NO" type="text" autofocus value="" autocomplete="off">
+            </div>
+
+            <div class="finput-group">
+                <label for="isa-nombor">I don't have ISA No</label>
+                <input type="checkbox" name="noisanum" id="noisanum">
             </div>
 
             <div class="finput-group profileshows">
@@ -105,6 +110,11 @@ function form2reg_display_view($atts){
             </div>
         
             <h5 class="personaldetails fs-title">Contact Details</h5>
+
+            <div class="finput-group">
+                <label for="iitialsname">Name With Initials</label>
+                <input id="iitialsname" name="iitialsname" placeholder="Enter your full name" type="text" autofocus value="" autocomplete="off">
+            </div>
 
             <div class="finput-group">
                 <label for="firstname">First Name</label>
