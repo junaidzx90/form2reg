@@ -211,7 +211,7 @@ function form2reg_run(){
     }
 
 
-    // checking user_name address
+    // checking user_name
     add_action("wp_ajax_check_user_name_exists", "check_user_name_exists");
     add_action("wp_ajax_nopriv_check_user_name_exists", "check_user_name_exists");
     function check_user_name_exists(){
@@ -232,19 +232,26 @@ function form2reg_run(){
     }
 
     // Generate Unique ISA Number
-    function form2reg_isa_generates(){
-        if(isset($_SESSION['uniquenum'])){
-            $username = $_SESSION['uniquenum'];
-        }else{
-            $uniquenum = 'isa'.rand(1,9999);
-            if(get_user_by( 'login', $uniquenum )){
-                $uniquenum = 'isa'.rand(1,9999);
-            }
-
-            $_SESSION['uniquenum'] = $uniquenum;
-            $username = $_SESSION['uniquenum'];
-        }
+    function form2reg_isa_generates($id = ''){
+        global $wpdb;
+        if(empty($id)){
+            $username = "ISA1";
+            $beforeuser = $wpdb->get_row("SELECT MAX(ID) AS ID, user_nicename FROM {$wpdb->prefix}users WHERE ID < ( SELECT MAX( ID ) FROM {$wpdb->prefix}users )");
         
+            $prefix = substr(get_user_by( 'id', $beforeuser->ID )->user_nicename,0,3);
+
+            if(!empty($prefix)){
+                if($prefix == "isa" || $prefix == "ISA"){
+                    $lastindexes = substr(get_user_by( 'id', $beforeuser->ID )->user_nicename,3);
+                    $username = "ISA".($lastindexes+1);
+                }else{
+                    $username = "ISA1";
+                }
+            }
+        }else{
+            $username = get_user_by( 'id', $id )->user_login;
+        }
+
         return $username;
     }
 
@@ -277,6 +284,7 @@ function form2reg_run(){
                 }
             }
             
+            $myisa = form2reg_isa_generates();
             $introducer_name = sanitize_text_field($_POST['data']['introducer']);
             $email = sanitize_email($_POST['data']['email']);
             $pass = sanitize_text_field($_POST['data']['pass']);
@@ -292,8 +300,7 @@ function form2reg_run(){
             $_addr_1 = sanitize_text_field($_POST['data']['_addr_1']);
             $_addr_2 = sanitize_text_field($_POST['data']['_addr_2']);
 
-            $myname = form2reg_isa_generates();
-            $getuserdata = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}users WHERE user_email = '$email' OR user_login = '$myname'");
+            $getuserdata = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}users WHERE user_email = '$email'");
             
             if( $getuserdata ){
                 echo 'User Exist';
@@ -303,8 +310,8 @@ function form2reg_run(){
             if(!empty($introducer_isa_number) && !empty($introducer_name) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($iitialsname) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
                 
                 $userdata = array(
-                    'user_login'    =>  form2reg_isa_generates(),
-                    'user_nicename'    =>  form2reg_isa_generates(),
+                    'user_login'    =>  $myisa,
+                    'user_nicename'    =>  $myisa,
                     'user_email'     =>  $email,
                     'user_pass'     =>  $pass,
                     'role'          => (get_option('form2reg_user_role')?get_option('form2reg_user_role'):'subscriber'),
@@ -337,8 +344,8 @@ function form2reg_run(){
                         array(
                             'parent_id' => $introducer_isa_number,
                             'user_id' => $user_id,
-                            'isa_num' => form2reg_isa_generates(),
-                            'username' => form2reg_isa_generates(),
+                            'isa_num' => form2reg_isa_generates($user_id),
+                            'username' => form2reg_isa_generates($user_id),
                         ),
                         array('%d','%d','%s','%s')
                     );

@@ -1,9 +1,6 @@
 <?php
 function form2reg_display_view($atts){
     ob_start();
-    if(session_id() == ''){
-        session_start();
-    }
     global $current_user;
     wp_enqueue_style('fontawesome');
     wp_enqueue_style(FORM2REG_NAME);
