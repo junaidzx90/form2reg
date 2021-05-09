@@ -3,7 +3,7 @@ jQuery(function ($) {
     var pass_access = true;
     var eml_access = true;
     var introducer_validity = true;
-    var name_access = true;
+    var gov_docs_number_access = true;
 
     // {FORM ONE / (STEP 1 FORM)}
     // =========================
@@ -274,28 +274,28 @@ jQuery(function ($) {
     });
 
     // Check user exist
-    $('#firstname').on('blur', function () {
-        let user_name = $(this).val();
+    $('#gov_docs_number').on('blur', function () {
+        let gov_docs_number = $(this).val();
         $.ajax({
             type: "post",
             url: public_ajax_action.ajaxurl,
             data: {
-                action: 'check_user_name_exists',
+                action: 'check_gov_docs_number_exists',
                 nonces: public_ajax_action.nonce,
-                user_name: user_name
+                gov_docs_number: gov_docs_number
             },
             success: function (response) {
                 if (response == 'exist') {
-                    $('#firstname').css('border', '1px solid red');
-                    name_access = false;
+                    $('#gov_docs_number').css('border', '1px solid red');
+                    gov_docs_number_access = false;
                 
                     myintroducer();
                     step3allval();
                     return false;
                 }
                 if(response == 'granted'){
-                    name_access = true;
-                    $('#firstname').css('border', '1px solid #ddd');
+                    gov_docs_number_access = true;
+                    $('#gov_docs_number').css('border', '1px solid #ddd');
                     step3allval();
                 }
             }
@@ -376,7 +376,7 @@ jQuery(function ($) {
         let billing_addr_1 = $('#billing_addr_1').val();
         let billing_addr_2 = $('#billing_addr_2').val();
 
-        if (firstname !== "" && iitialsname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && name_access == true) {
+        if (firstname !== "" && iitialsname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && gov_docs_number_access == true) {
             $('.submit').removeAttr('disabled');
             return true;
         } else {
@@ -493,7 +493,7 @@ jQuery(function ($) {
 	
     
     $(".submit").click(function (e) {
-        if (step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true && name_access == true) {
+        if (step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true && gov_docs_number_access == true) {
             e.preventDefault();
             let isa_num = $('#isa-nombor').val();
             let introducer = $('#introducer-fullname').val();

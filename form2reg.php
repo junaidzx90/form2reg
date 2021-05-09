@@ -211,15 +211,18 @@ function form2reg_run(){
     }
 
 
-    // checking user_name
-    add_action("wp_ajax_check_user_name_exists", "check_user_name_exists");
-    add_action("wp_ajax_nopriv_check_user_name_exists", "check_user_name_exists");
-    function check_user_name_exists(){
+    // checking gov_docs_number
+    add_action("wp_ajax_check_gov_docs_number_exists", "check_gov_docs_number_exists");
+    add_action("wp_ajax_nopriv_check_gov_docs_number_exists", "check_gov_docs_number_exists");
+    function check_gov_docs_number_exists(){
         if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
-            if(isset($_POST['user_name'])){
-                if(!empty($_POST['user_name'])){
+            if(isset($_POST['gov_docs_number'])){
+                if(!empty($_POST['gov_docs_number'])){
                     global $wpdb;
-                    if(get_user_by( 'login', sanitize_text_field( $_POST['user_name']) )){
+                    $identy_number = sanitize_text_field( $_POST['gov_docs_number'] );
+                    $identity = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = 'reg_billing_nic' AND meta_value = $identy_number");
+
+                    if($identity){
                         echo 'exist';
                     }else{
                         echo 'granted';
@@ -359,8 +362,6 @@ function form2reg_run(){
                             wp_clear_auth_cookie();
                             wp_set_current_user($myaccess->ID);
                             wp_set_auth_cookie($myaccess->ID);
-                            // remove unique isa number
-                            unset($_SESSION['uniquenum']);
                         }
                     }
                     echo $user_id;
