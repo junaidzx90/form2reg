@@ -199,9 +199,11 @@ function form2reg_run(){
                 if(!empty($_POST['email'])){
                     global $wpdb;
                     if(get_user_by_email( sanitize_email( $_POST['email']) )){
-                        echo 'exist';
+                        echo json_encode(array('exist' => 'exist')); 
+                        die;
                     }else{
-                        echo 'granted';
+                        echo json_encode(array('granted' => 'granted'));
+                        die;
                     }
                     die;
                 }
@@ -223,9 +225,11 @@ function form2reg_run(){
                     $identity = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = 'reg_billing_nic' AND meta_value = $identy_number");
 
                     if($identity){
-                        echo 'exist';
+                        echo json_encode(array('exist' => 'exist'));
+                        die;
                     }else{
-                        echo 'granted';
+                        echo json_encode(array('granted' => 'granted'));
+                        die;
                     }
                     die;
                 }
@@ -239,7 +243,7 @@ function form2reg_run(){
         global $wpdb;
         if(empty($id)){
             $username = "ISA1";
-            $beforeuser = $wpdb->get_row("SELECT MAX(ID) AS ID, user_nicename FROM {$wpdb->prefix}users WHERE ID < ( SELECT MAX( ID ) FROM {$wpdb->prefix}users )");
+            $beforeuser = $wpdb->get_row("SELECT MAX( ID ) AS ID, user_nicename FROM {$wpdb->prefix}users");
         
             $prefix = substr(get_user_by( 'id', $beforeuser->ID )->user_nicename,0,3);
 
@@ -303,7 +307,7 @@ function form2reg_run(){
             $_addr_1 = sanitize_text_field($_POST['data']['_addr_1']);
             $_addr_2 = sanitize_text_field($_POST['data']['_addr_2']);
 
-            $getuserdata = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}users WHERE user_email = '$email'");
+            $getuserdata = get_user_by_email( $email );
             
             if( $getuserdata ){
                 echo 'User Exist';

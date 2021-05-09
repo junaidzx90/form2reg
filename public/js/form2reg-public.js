@@ -173,18 +173,19 @@ jQuery(function ($) {
                 nonces: public_ajax_action.nonce,
                 email: email
             },
+            dataType: "json",
             success: function (response) {
-                if (response == 'exist') {
-                    $('#email_addr').css('border', '1px solid red');
+                if (response.exist) {
                     eml_access = false;
-                   
                     myintroducer();
                     step3allval();
+                    $('#email_addr').css('border', '1px solid red');
                     return false;
                 }
-                if(response == 'granted'){
+                if(response.granted){
                     eml_access = true;
                     step3allval();
+                    $('#email_addr').css('border', '1px solid #ddd');
                 }
             }
         });
@@ -262,7 +263,7 @@ jQuery(function ($) {
         }
     });
 
-    // firstname
+    // iitialsname
     $('#iitialsname').on('keyup', function () {
         if ($(this).val() !== "") {
             $(this).css('border', '1px solid #ddd');
@@ -284,19 +285,20 @@ jQuery(function ($) {
                 nonces: public_ajax_action.nonce,
                 gov_docs_number: gov_docs_number
             },
+            dataType: "json",
             success: function (response) {
-                if (response == 'exist') {
-                    $('#gov_docs_number').css('border', '1px solid red');
-                    gov_docs_number_access = false;
-                
+                if (response.exist) {
+                    gov_docs_number_access = false;
+                    
                     myintroducer();
                     step3allval();
+                    $('#gov_docs_number').css('border', '1px solid red');
                     return false;
                 }
-                if(response == 'granted'){
+                if(response.granted){
                     gov_docs_number_access = true;
-                    $('#gov_docs_number').css('border', '1px solid #ddd');
                     step3allval();
+                    $('#gov_docs_number').css('border', '1px solid #ddd');
                 }
             }
         });
