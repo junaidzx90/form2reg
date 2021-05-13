@@ -245,7 +245,7 @@ function form2reg_run(){
                 if(!empty($_POST['gov_docs_number'])){
                     global $wpdb;
                     $identy_number = sanitize_text_field( $_POST['gov_docs_number'] );
-                    $identity = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = 'reg_billing_nic' AND meta_value = $identy_number");
+                    $identity = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = 'reg_billing_nic' AND meta_value = {$identy_number}");
 
                     if($identity){
                         echo json_encode(array('exist' => 'exist'));
@@ -336,7 +336,7 @@ function form2reg_run(){
             $branch_name = sanitize_text_field($_POST['data']['branch_name']);
             $branch_code = sanitize_text_field($_POST['data']['branch_code']);
 
-            $banknumber = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = `account_number` AND meta_value = `$account_number`");
+            $banknumber = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = 'account_number' AND meta_value = {$bank_account_number}");
             if($banknumber){
                 echo 'Bank Invalid';
                 die;
