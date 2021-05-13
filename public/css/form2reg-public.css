@@ -105,7 +105,7 @@ span.showpass {
   box-shadow: 0 0 0 2px #f08a5d;
   color: #fff;
 }
-#form2reg_reg__form .fs-title {
+#form2reg_reg__form .fs-title,h5.bank-details {
   font-size: 24px;
   text-transform: uppercase;
   color: var(--form2reg-form-title) !important;
@@ -166,7 +166,7 @@ label.noisanum {
   top: 9px;
   z-index: -1;
 }
-.personaldetails {
+.personaldetails,h5.bank-details {
   font-size: 18px !important;
   text-align: left;
   margin: 20px 0px;
@@ -225,7 +225,7 @@ table tr, th, td {
 	#form2reg_reg__form {
 		width: 100% !important;
 	}
-	#form2reg_reg__form .fs-title{
+	#form2reg_reg__form .fs-title,h5.bank-details{
 		font-size: 18px;
 	}
   .introducer_profile {

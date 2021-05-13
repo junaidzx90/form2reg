@@ -178,6 +178,46 @@ function form2reg_display_view($atts){
                 <label for="billing_addr_2">Address Line 2</label>
                 <input id="billing_addr_2" name="billing_addr_2" placeholder="State, City, Twon, House" type="text">
             </div>
+
+            <h5 class="bank-details">Bank details</h5>
+            <div class="finput-group">
+                <label for="bank_names">Bank Name</label>
+                <select class="input-text bankselect" name="bank_names" id="bank_names"> 
+                    <option value="">Select Bank</option>
+                    <option value="bocbank">BOC</option>
+                    <option value="sampathbank">SAMPATH BANK</option>
+                    <option value="comarcialbank">COMMERCIAL BANK</option>
+                    <option value="hnbbank">HNB</option>
+                    <option value="peoplesbank">PEOPLES BANK</option>
+                    <option value="dfccbank">DFCC BANK</option>
+                    <option value="panasiabank">PAN ASIA BANK</option>
+                    <option value="nsbbank">NSB</option>
+                    <option value="hsbc">HSBC</option>
+                    <option value="ndbbank">NDB BANK</option>
+                    <option value="nationstrustbank">NATiONS TRUST BANK</option>
+                </select>
+            </div>
+
+            <div class="finput-group">
+                <label for="bank_account_number">Account Number</label>
+                <input id="bank_account_number" name="bank_account_number" placeholder="Account number" type="text">
+            </div>
+
+            <div class="finput-group">
+                <label for="account_holder_name">Account Holder Name</label>
+                <input id="account_holder_name" name="account_holder_name" placeholder="Account holder" type="text">
+            </div>
+
+            <div class="finput-group">
+                <label for="branch_name">Branch Name</label>
+                <input id="branch_name" name="branch_name" placeholder="Branch name" type="text">
+            </div>
+
+            <div class="finput-group">
+                <label for="branch_code">Branch Code</label>
+                <input id="branch_code" name="branch_code" placeholder="Branch code" type="text">
+            </div>
+
             <input type="button" name="previous" class="previous action-button" value="Previous" />
             <input type="submit" name="submit" class="submit action-button" value="Submit" disabled/>
         </fieldset>

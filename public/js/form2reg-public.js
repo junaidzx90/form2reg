@@ -4,6 +4,7 @@ jQuery(function ($) {
     var eml_access = true;
     var introducer_validity = true;
     var gov_docs_number_access = true;
+    var banknumber_access = true;
 
     // {FORM ONE / (STEP 1 FORM)}
     // =========================
@@ -359,6 +360,89 @@ jQuery(function ($) {
             step3allval();
         }
     });
+
+    /**
+     * Bank Informations
+     */
+    // bank_names
+    $('#bank_names').on('change', function () {
+        if ($(this).val() !== "") {
+            $(this).css('border', '1px solid #ddd');
+            step3allval();
+        } else {
+            $(this).css('border', '1px solid red');
+            step3allval();
+        }
+    });
+
+    // bank_names
+    $('#bank_account_number').on('blur', function () {
+        if ($(this).val() !== "") {
+            let banknumber = $(this).val();
+            $(this).css('border', '1px solid #ddd');
+            $.ajax({
+                type: "post",
+                url: public_ajax_action.ajaxurl,
+                data: {
+                    action: 'banknumber_checkingpoint',
+                    banknumber: banknumber,
+                    nonces: public_ajax_action.nonce,
+                },
+                dataType: "json",
+                success: function (response) {
+                    if (response.exist) {
+                        banknumber_access = false;
+                        myintroducer();
+                        step3allval();
+                        $('#bank_account_number').css('border', '1px solid red');
+                        return false;
+                    }
+                    if (response.granted) {
+                        banknumber_access = true;
+                        step3allval();
+                        $('#bank_account_number').css('border', '1px solid #ddd');
+                    }
+                }
+            });
+        } else {
+            $(this).css('border', '1px solid red');
+            step3allval();
+        }
+    });
+
+    // account holder name
+    $('#account_holder_name').on('keyup', function () {
+        if ($(this).val() !== "") {
+            $(this).css('border', '1px solid #ddd');
+            step3allval();
+        } else {
+            $(this).css('border', '1px solid red');
+            step3allval();
+        }
+    });
+
+    // account branch name
+    $('#branch_name').on('keyup', function () {
+        if ($(this).val() !== "") {
+            $(this).css('border', '1px solid #ddd');
+            step3allval();
+        } else {
+            $(this).css('border', '1px solid red');
+            step3allval();
+        }
+    });
+
+    // account branch name
+    $('#branch_code').on('keyup', function () {
+        if ($(this).val() !== "") {
+            $(this).css('border', '1px solid #ddd');
+            step3allval();
+        } else {
+            $(this).css('border', '1px solid red');
+            step3allval();
+        }
+    });
+
     
     // Step 3 check ability
     function step3allval() {
@@ -378,7 +462,13 @@ jQuery(function ($) {
         let billing_addr_1 = $('#billing_addr_1').val();
         let billing_addr_2 = $('#billing_addr_2').val();
 
-        if (firstname !== "" && iitialsname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && gov_docs_number_access == true) {
+        let bank_names = $('#bank_names').val();
+        let bank_account_number = $('#bank_account_number').val();
+        let account_holder_name = $('#account_holder_name').val();
+        let branch_name = $('#branch_name').val();
+        let branch_code = $('#branch_code').val();
+
+        if (firstname !== "" && iitialsname !== "" && phone !== "" && billing_state !== "" && billing_city !== "" && billing_zipcode !== "" && billing_addr_1 !== ""  && pass_access == true && eml_access == true && introducer_validity == true && email_addr !== "" && password !== "" && gender !== "" && gov_id_type !== "" && gov_docs_number !== "" && bank_names !== "" && bank_account_number !== ""  && account_holder_name !== "" && branch_name !== "" && branch_code !== "" && gov_docs_number_access == true && banknumber_access == true) {
             $('.submit').removeAttr('disabled');
             return true;
         } else {
@@ -495,7 +585,7 @@ jQuery(function ($) {
 	
     
     $(".submit").click(function (e) {
-        if (step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true && gov_docs_number_access == true) {
+        if (step3allval() == true && pass_access == true && eml_access == true && introducer_validity == true && gov_docs_number_access == true && banknumber_access == true) {
             e.preventDefault();
             let isa_num = $('#isa-nombor').val();
             let introducer = $('#introducer-fullname').val();
@@ -514,8 +604,14 @@ jQuery(function ($) {
             let _addr_1 = $('#billing_addr_1').val();
             let _addr_2 = $('#billing_addr_2').val();
 
+            let bank_names = $('#bank_names').val();
+            let bank_account_number = $('#bank_account_number').val();
+            let account_holder_name = $('#account_holder_name').val();
+            let branch_name = $('#branch_name').val();
+            let branch_code = $('#branch_code').val();
+
             let data = {
-                isa_num,introducer,email,pass,gender_,id_type,id_number,fname,iitialsname,phone_,_state,_city,_zipcode,_addr_1,_addr_2
+                isa_num,introducer,email,pass,gender_,id_type,id_number,fname,iitialsname,phone_,_state,_city,_zipcode,_addr_1,_addr_2,bank_names,bank_account_number,account_holder_name,branch_name,branch_code
             }
 
             $.ajax({

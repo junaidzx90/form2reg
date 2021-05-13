@@ -17,7 +17,7 @@
  */
 
 // If this file is called directly, abort.
-
+ob_start();
 define( 'FORM2REG_NAME', 'form2reg' );
 define( 'FORM2REG_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -211,6 +211,29 @@ function form2reg_run(){
             }
         die;
     }
+    // checking bank number
+    add_action("wp_ajax_banknumber_checkingpoint", "banknumber_checkingpoint");
+    add_action("wp_ajax_nopriv_banknumber_checkingpoint", "banknumber_checkingpoint");
+    function banknumber_checkingpoint(){
+        if(wp_verify_nonce( $_POST['nonces'], 'nonces' ))
+            if(isset($_POST['banknumber'])){
+                if(!empty($_POST['banknumber'])){
+                    global $wpdb;
+                    $account_number = sanitize_text_field(intval($_POST['banknumber']));
+                    $banknumber = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = 'account_number' AND meta_value = {$account_number}");
+                    if($banknumber){
+                        echo json_encode(array('exist' => 'exist')); 
+                        die;
+                    }else{
+                        echo json_encode(array('granted' => 'granted')); 
+                        die;
+                    }
+                    die;
+                }
+                die;
+            }
+        die;
+    }
 
 
     // checking gov_docs_number
@@ -307,14 +330,25 @@ function form2reg_run(){
             $_addr_1 = sanitize_text_field($_POST['data']['_addr_1']);
             $_addr_2 = sanitize_text_field($_POST['data']['_addr_2']);
 
+            $bank_names = sanitize_text_field($_POST['data']['bank_names']);
+            $bank_account_number = sanitize_text_field(intval($_POST['data']['bank_account_number']));
+            $account_holder_name = sanitize_text_field($_POST['data']['account_holder_name']);
+            $branch_name = sanitize_text_field($_POST['data']['branch_name']);
+            $branch_code = sanitize_text_field($_POST['data']['branch_code']);
+
+            $banknumber = $wpdb->get_var("SELECT meta_value FROM {$wpdb->prefix}usermeta WHERE meta_key = `account_number` AND meta_value = `$account_number`");
+            if($banknumber){
+                echo 'Bank Invalid';
+                die;
+            }
+
             $getuserdata = get_user_by_email( $email );
-            
             if( $getuserdata ){
                 echo 'User Exist';
                 die;
             }
             
-            if(!empty($introducer_isa_number) && !empty($introducer_name) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($iitialsname) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1)){
+            if(!empty($introducer_isa_number) && !empty($introducer_name) && !empty($email) && !empty($pass) && !empty($gender_) && !empty($id_type) && !empty($id_number) && !empty($iitialsname) && !empty($fname) && !empty($phone_) && !empty($_state) && !empty($_city) && !empty($_zipcode) && !empty($_addr_1) && !empty($bank_names) && !empty($bank_account_number) && !empty($account_holder_name) && !empty($branch_name) && !empty($branch_code)){
                 
                 $userdata = array(
                     'user_login'    =>  $myisa,
@@ -343,6 +377,12 @@ function form2reg_run(){
                 $usermeta = update_user_meta( $user_id, 'billing_postcode', $_zipcode );
                 $usermeta = update_user_meta( $user_id, 'billing_address_1', $_addr_1 );
                 $usermeta = update_user_meta( $user_id, 'billing_address_2', $_addr_2 );
+                // bank_name, account_number, account_holder_name, branch_name, branch_code
+                $usermeta = update_user_meta( $user_id, 'bank_name', $bank_names );
+                $usermeta = update_user_meta( $user_id, 'account_number', $bank_account_number );
+                $usermeta = update_user_meta( $user_id, 'account_holder_name', $account_holder_name );
+                $usermeta = update_user_meta( $user_id, 'branch_name', $branch_name );
+                $usermeta = update_user_meta( $user_id, 'branch_code', $branch_code );
 
                 $reffer_table = $wpdb->prefix.'refferels';
                 if($introducer_isa_number){
@@ -382,6 +422,11 @@ function form2reg_run(){
                     delete_user_meta( $user_id, 'billing_postcode');
                     delete_user_meta( $user_id, 'billing_address_1');
                     delete_user_meta( $user_id, 'billing_address_2');
+                    delete_user_meta( $user_id, 'bank_name');
+                    delete_user_meta( $user_id, 'account_number');
+                    delete_user_meta( $user_id, 'account_holder_name');
+                    delete_user_meta( $user_id, 'branch_name');
+                    delete_user_meta( $user_id, 'branch_code');
                     wp_delete_user( $user_id );
                 }
                 die;
